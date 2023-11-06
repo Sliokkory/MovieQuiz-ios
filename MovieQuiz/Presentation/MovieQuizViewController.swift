@@ -6,13 +6,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        questionFactory.delegate = self
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         alertPresenter.delegate = self
-        questionFactory.requestNextQuestion(0)
+        showLoadingIndicator()
+        questionFactory?.loadData()
     }
     
     // MARK: - QuestionFactoryDelegate
-
+    
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
             return
@@ -27,7 +28,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     func didReceiveAlert() {
         currentQuestionIndex = 0
         correctAnswers = 0
-        questionFactory.requestNextQuestion(currentQuestionIndex)
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription) // возьмём в качестве сообщения описание ошибки
     }
     
     // переменная с индексом текущего вопроса, начальное значение 0
@@ -40,10 +50,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     // количество сыгранных квизов
     private var currentQuizCount = 0
     private let questionsAmount: Int = 10
-    private var questionFactory: QuestionFactoryProtocol = QuestionFactory() as QuestionFactoryProtocol
-    private var alertPresenter: AlertPresenterProtocol = ResultAlertPresenter() as AlertPresenterProtocol
+    private var questionFactory: QuestionFactoryProtocol?
+    private var alertPresenter: AlertPresenterProtocol = ResultAlertPresenter()
     private var currentQuestion: QuizQuestion?
-    private var statisticService: StatisticService = StatisticServiceImplementation()
+    private lazy var statisticService: StatisticService = StatisticServiceImplementation()
     
     private func currentDate() -> String {
         let date = Date()
@@ -60,10 +70,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для экрана вопроса
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-            return questionStep
+        return questionStep
     }
     
     // приватный метод вывода на экран вопроса, который принимает на вход вью модель вопроса и ничего не возвращает
@@ -77,20 +87,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     // принимает на вход булевое значение и ничего не возвращает
     private func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
-                correctAnswers += 1
+            correctAnswers += 1
         }
         // метод красит рамку
         imageView.layer.masksToBounds = true // даём разрешение на рисование рамки
         imageView.layer.borderWidth = 8 // толщина рамки по макету
         imageView.layer.cornerRadius = 20 // по макету
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor // красим рамку в зависимости от корректности ответа
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                // возвращаем обработку нажатий кнопкок "Да/Нет"
-                self.yesButton.isEnabled = true
-                self.noButton.isEnabled = true
-                self.showNextQuestionOrResults()
-            }
+            // возвращаем обработку нажатий кнопкок "Да/Нет"
+            self.yesButton.isEnabled = true
+            self.noButton.isEnabled = true
+            self.showNextQuestionOrResults()
+        }
     }
     // приватный метод, который содержит логику перехода в один из сценариев
     // метод ничего не принимает и ничего не возвращает
@@ -109,8 +119,27 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             alertPresenter.showResult(quiz: viewModel)
         } else {
             currentQuestionIndex += 1
-            questionFactory.requestNextQuestion(currentQuestionIndex)
+            questionFactory?.requestNextQuestion()
         }
+    }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator() // скрываем индикатор загрузки
+        let model = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз")
+        
+        alertPresenter.showResult(quiz: model)
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
     }
     
     @IBOutlet weak private var imageView: UIImageView!
@@ -118,11 +147,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     @IBOutlet weak private var textLabel: UILabel!
     
     @IBOutlet weak private var counterLabel: UILabel!
-
+    
     @IBOutlet weak private var noButton: UIButton!
     
     @IBOutlet weak var yesButton: UIButton!
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     // метод вызывается, когда пользователь нажимает на кнопку "Нет"
     @IBAction private func noButtonClicked(_ sender: Any) {
@@ -136,7 +166,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         showAnswerResult(isCorrect: getAnswer == currentQuestion.correctAnswer)
     }
-
+    
     // метод вызывается, когда пользователь нажимает на кнопку "Да"
     @IBAction private func yesButtonClicked(_ sender: Any) {
         // отключаем кнопки до момента обработки результатов
@@ -146,7 +176,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             return
         }
         let getAnswer = true
-
+        
         showAnswerResult(isCorrect: getAnswer == currentQuestion.correctAnswer)
     }
 }
