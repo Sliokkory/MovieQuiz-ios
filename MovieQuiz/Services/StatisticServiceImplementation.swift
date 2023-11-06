@@ -16,7 +16,6 @@ final class StatisticServiceImplementation: StatisticService {
     private let userDefaults = UserDefaults.standard
     
     func store(correct count: Int, total amount: Int) -> GameRecord {
-        print(Double(count) / Double(amount), count, amount)
         totalAccuracy = (Double(count) / Double(amount)) * 100
         
         let game: GameRecord = .init(correct: count, total: amount, date: Date(), totalAccuracy: totalAccuracy)

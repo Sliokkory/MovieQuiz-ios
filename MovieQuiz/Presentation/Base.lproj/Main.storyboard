@@ -119,6 +119,11 @@
                                     <constraint firstItem="yHL-IJ-bPn" firstAttribute="leading" secondItem="XOP-wE-Nd3" secondAttribute="leading" id="qND-a8-7Gc"/>
                                 </constraints>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="dGs-X7-nL4">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                                <color key="tintColor" name="YP Red"/>
+                                <color key="color" name="YP Red"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
@@ -126,10 +131,13 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="XOP-wE-Nd3" secondAttribute="bottom" id="8bz-hp-0LX"/>
                             <constraint firstItem="XOP-wE-Nd3" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="B0g-6B-ex7"/>
                             <constraint firstItem="XOP-wE-Nd3" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="Mae-cP-jOA"/>
+                            <constraint firstItem="dGs-X7-nL4" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="sFF-od-J8V"/>
+                            <constraint firstItem="dGs-X7-nL4" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="tBo-DJ-HUw"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="XOP-wE-Nd3" secondAttribute="trailing" constant="20" id="vcS-uo-oFK"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="dGs-X7-nL4" id="uNg-Yq-u57"/>
                         <outlet property="counterLabel" destination="oJh-fv-QAD" id="JSc-wq-pE5"/>
                         <outlet property="imageView" destination="nBd-DS-5Kf" id="uNu-W3-RGs"/>
                         <outlet property="noButton" destination="gAe-Ca-DNi" id="sct-y5-02L"/>
@@ -144,10 +152,13 @@
     </scenes>
     <resources>
         <namedColor name="YP Black">
-            <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.10199999809265137" green="0.10599999874830246" blue="0.13300000131130219" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="YP Red">
+            <color red="0.96100002527236938" green="0.41999998688697815" blue="0.42399999499320984" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="YP White">
-            <color red="0.99999994039535522" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>
