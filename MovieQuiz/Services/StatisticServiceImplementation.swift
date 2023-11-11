@@ -26,8 +26,8 @@ final class StatisticServiceImplementation: StatisticService {
         return game
     }
     
-    func getStats(correct count: Int, total amount: Int, quizCount: Int) -> String {
-        gamesCount = quizCount
+    func getStats(correct count: Int, total amount: Int) -> String {
+        gamesCount += 1
         let currentScore = store(correct: count, total: amount)
         let bestDate = bestGame.date.dateTimeString
         let currentAccuracy = "\(String(format: "%.2f", totalAccuracy))%"
